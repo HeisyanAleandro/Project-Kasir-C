@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Deklarasi struct untuk menyimpan data barang
 typedef struct {
     char produk[20];
     int harga, jumlah, TotalHarga, diskon;
 } GVariabel;
 
+// Fungsi untuk mengurutkan data barang berdasarkan jumlah
 void UrutkanProduk(GVariabel data[]) {
     GVariabel temp;
     for (int i = 0; i < 4; i++) {
@@ -21,20 +23,22 @@ void UrutkanProduk(GVariabel data[]) {
     }
 }
 
+// Fungsi untuk menghitung diskon berdasarkan jumlah pembelian
 int jumlahDiskon(int jumlah) {
     return jumlah > 5 ? 15 : jumlah > 3 ? 10 : 0;
 }
 
+// Menampilkan menu awal kepada pengguna
 void tampilkanMenuAwal(GVariabel data[]) {
     printf("                                SELAMAT DATANG DI                                 \n");
     printf("                                   TOKO SKENSA                                    \n");
     printf("==================================================================================\n");
     printf("                    Silahkan Pilih Barang yang Anda Inginkan :                    \n");
-    printf("==================================================================================\n\n");
-    printf("\|No|Barang \t\t|Harga      |\n");
+    printf("==================================================================================\n");
+    printf("\| No | Barang \t\t| Harga      |\n");
     printf("-------------------------------------\n");
     for (int i = 0; i < 5; i++) {
-        printf("|%i.|%s|\t\t|%d|\n", i + 1, data[i].produk, data[i].harga);
+        printf("| %-2d | %-16s | %-10d |\n", i + 1, data[i].produk, data[i].harga);
     }
     printf("==================================================================================\n\n");
     printf("99. Struk Pembayaran\n");
@@ -42,6 +46,7 @@ void tampilkanMenuAwal(GVariabel data[]) {
     printf("00. Keluar Aplikasi\n\n");
 }
 
+// Menampilkan struk pembayaran
 void TampilkanStruk(GVariabel data[]) {
     printf("\n\n                              REKAP PESANAN BARANG                                    \n");
     printf("==================================================================================\n");
@@ -56,6 +61,7 @@ void TampilkanStruk(GVariabel data[]) {
 }
 
 int main() {
+    // Deklarasi variabel
     int BarangDipilih, PersentaseDiskon, TotalSemuaTagihan, loop = 0, TotalDiskon, Tagihan, Pembayaran, Kembalian, jumlahTambahan;
     char IDStruk[20], IDStrukConsole[50], ZonaWaktu[80], namafile[50];
     time_t sekarang;
@@ -63,34 +69,49 @@ int main() {
     struct tm *waktu_lokal = localtime(&sekarang);
     strftime(ZonaWaktu, 80, "%a %b %d %H:%M:%S %Y", waktu_lokal);
 
+    // Inisialisasi data barang
     GVariabel data[5] = {
         {"Buku Tulis", 5000, 0},
         {"Pensil", 2000, 0},
         {"Penghapus", 1000, 0},
         {"Penggaris", 1000, 0},
-        {"Bujur", 500, 0}
+        {"Bujur Sangkar", 500, 0}
     };
 
+    // Menampilkan menu awal
     tampilkanMenuAwal(data);
 
     do {
         printf("\n==================================================================================\n\n");
         printf("\Input Pilihan yang Anda Inginkan : ");
+
+        // Memeriksa input pengguna
         if (scanf("%i", &BarangDipilih) != 1) {
-            while ((getchar()) != '\n');
+            // Bersihkan buffer input
+            while (( getchar()) != '\n');
             printf("Input tidak valid.\n");
             continue;
         }
 
         switch (BarangDipilih) {
-            case 1  ... 6:
-                printf("--------------------------------------\n");
-                printf("Masukkan Jumlah %s \t : ", data[BarangDipilih - 1].produk);
-                int tambahanJumlah;
-                scanf("%i", &tambahanJumlah);
-                data[BarangDipilih - 1].jumlah += tambahanJumlah;
-                printf("\n");
+            case 1  ... 5:
 
+               do {
+                    printf("--------------------------------------\n");
+                    int tambahanJumlah = 0; // Inisialisasi variabel
+                    printf("Masukkan Jumlah %s \t : ", data[BarangDipilih - 1].produk);
+                    if (scanf("%i", &tambahanJumlah) != 1) {
+                        // Bersihkan buffer input
+                        while ((getchar()) != '\n');
+                        printf("Input tidak valid.\n");
+                        continue;
+                    }
+                    data[BarangDipilih - 1].jumlah += tambahanJumlah;
+                    printf("\n");
+                    break; // Keluar dari perulangan jika input valid
+                } while (1);
+
+                // Menghitung total harga dan diskon setiap barang
                 for (int i = 0; i < 5; i++) {
                     data[i].TotalHarga = data[i].harga * data[i].jumlah;
                     PersentaseDiskon = jumlahDiskon(data[i].jumlah);
@@ -105,6 +126,7 @@ int main() {
                 break;
 
             case 99:
+                // Menampilkan struk pembayaran
                 if (BarangDipilih == 99) {
                     sprintf(IDStrukConsole, "%ld", sekarang);
                     TampilkanStruk(data);
@@ -113,10 +135,20 @@ int main() {
                     TotalDiskon = data[0].diskon + data[1].diskon + data[2].diskon + data[3].diskon + data[4].diskon;
                     printf("\nTotal Diskon \t:Rp. %i,-", TotalDiskon);
                     Tagihan = TotalSemuaTagihan - TotalDiskon;
-                    printf("\nTotal Bayar \t:Rp. %i,-", Tagihan);
+                   do {
                     printf("\n==================================================================================\n\n");
                     printf("Masukkan Nominal Pembayaran :Rp. ");
-                    scanf("%i", &Pembayaran);
+
+                    if (scanf("%i", &Pembayaran) != 1) {
+                        // Bersihkan buffer input
+                        while (( getchar()) != '\n');
+
+                        printf("Input tidak valid.\n");
+                        continue;
+                    }
+                    break;
+
+                } while (1);
 
                     do {
                         if (Pembayaran < Tagihan) {
@@ -136,31 +168,31 @@ int main() {
                         printf("\n==================================================================================\n");
                         printf("|                                   TOKO SKENSA                                  |\n");
                         printf("|                          JALAN HOS COKROAMINOTO NO. 84                         |\n");
-		                printf("|                                  DENPASAR, BALI                                |\n");
-		                printf("|                                  TELP. 081628579                               |\n");
-		                printf("|                                                                                |\n");
-		                printf("|ID Struk : %s                                                           |\n", IDStrukConsole);
-		                printf("==================================================================================\n");
-		                printf("|No|Jumlah  |Nama Barang        |Harga       |Total Harga\t|Diskon         |                  \n");
-		                printf("==================================================================================\n\n");
-		                 for (int i = 0; i < 5; i++) {
-		            if (data[i].jumlah != 0) { // Periksa apakah jumlah barang tidak nol
-		                printf("|%i.|%i\t    |%s\t\t|%i\t     |%i\t\t|%i\t\t|\n", i + 1, data[i].jumlah, data[i].produk, data[i].harga, data[i].TotalHarga, data[i].diskon);
-		            }
-		        }
-		                printf("==================================================================================\n");
-		                printf("|                                                                                |\n");
-		                printf("|Total Harga \t:Rp. %i,-                                                     |\n", TotalSemuaTagihan);
-		                printf("|Total Diskon \t:Rp. %i,-                                                      |\n", TotalDiskon);
-		                printf("|Total Bayar \t:Rp. %i,-                                                     |\n", Tagihan);
-		                printf("|Pembayaran \t:Rp. %i,-                                                     |\n", Pembayaran);
-		                printf("|Kembalian \t:Rp. %i,-                                                      |\n", Kembalian);
-		                printf("|                                                                                |\n");
-		                printf("|Waktu / Hari : %s                                         |\n", ZonaWaktu);
-		                printf("|                                                                                |\n");
-		                printf("==================================================================================\n");
-                    }
-                }
+                        printf("|                                  DENPASAR, BALI                                |\n");
+                        printf("|                                  TELP. 081628579                               |\n");
+                        printf("|                                                                                |\n");
+                        printf("|ID Struk : %s                                                           |\n", IDStrukConsole);
+                        printf("==================================================================================\n");
+                        printf("|No|Jumlah  |Nama Barang        |Harga       |Total Harga\t|Diskon          |                  \n");
+                        printf("==================================================================================\n");
+                        for (int i = 0; i < 5; i++) {
+                            if (data[i].jumlah != 0) { // Periksa apakah jumlah barang tidak nol
+                                printf("|%i.|%i\t    |%s\t\t|%i\t     |%i\t\t|%i\t\t |\n", i + 1, data[i].jumlah, data[i].produk, data[i].harga, data[i].TotalHarga, data[i].diskon);
+                            }
+                        }
+                        printf("==================================================================================\n");
+                        printf("|                                                                                |\n");
+                        printf("|Total Harga \t:Rp. %i,-                                                     |\n", TotalSemuaTagihan);
+                        printf("|Total Diskon \t:Rp. %i,-                                                      |\n", TotalDiskon);
+                        printf("|Total Bayar \t:Rp. %i,-                                                     |\n", Tagihan);
+                        printf("|Pembayaran \t:Rp. %i,-                                                     |\n", Pembayaran);
+                        printf("|Kembalian \t:Rp. %i,-                                                      |\n", Kembalian);
+                        printf("|                                                                                |\n");
+                        printf("|Waktu / Hari : %s                                         |\n", ZonaWaktu);
+                        printf("|                                                                                |\n");
+                        printf("==================================================================================\n");
+                            }
+                        }
                 break;
 
             case 0:
@@ -176,8 +208,10 @@ int main() {
         }
     } while (BarangDipilih != 99 && BarangDipilih != 55 && BarangDipilih != 0);
 
+    // Urutkan produk berdasarkan jumlah
     UrutkanProduk(data);
 
+    // Simpan struk pembayaran ke dalam file
     FILE *file;
     sprintf(IDStruk, "%ld", sekarang);
     sprintf(namafile, "Struk_%s.txt", IDStruk);
@@ -191,11 +225,11 @@ int main() {
         fprintf(file, "\t\t|                                                                                |\n");
         fprintf(file, "\t\t|ID Struk : %s                                                           |\n", IDStruk);
         fprintf(file, "\t\t==================================================================================\n");
-        fprintf(file, "\t\t|No|Jumlah  |Nama Barang        |Harga       |Total Harga\t|Diskon         |                  \n");
-        fprintf(file, "\t\t==================================================================================\n\n");
+        fprintf(file, "\t\t|No|Jumlah  |Nama Barang        |Harga       |Total Harga\t|Diskon          |                  \n");
+        fprintf(file, "\t\t==================================================================================\n");
          for (int i = 0; i < 5; i++) {
-            if (data[i].jumlah != 0) { // Periksa apakah jumlah barang tidak nol
-                fprintf(file,"\t\t|%i.|%i\t    |%s\t\t|%i\t     |%i\t\t|%i\t\t|\n", i + 1, data[i].jumlah, data[i].produk, data[i].harga, data[i].TotalHarga, data[i].diskon);
+            if (data[i].jumlah != 0) {
+                fprintf(file,"\t\t|%i.|%i\t    |%s\t\t|%i\t     |%i\t\t|%i\t\t |\n", i + 1, data[i].jumlah, data[i].produk, data[i].harga, data[i].TotalHarga, data[i].diskon);
             }
         }
         fprintf(file, "\t\t==================================================================================\n");
